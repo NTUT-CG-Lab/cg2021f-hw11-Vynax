@@ -344,6 +344,10 @@
 
                 let data = new Uint8ClampedArray(result);
 
+                console.log(data);
+                console.log("長/寬/深度: " + width + "/" + height + "/" + depth);
+                console.log("位元: " + bit + "bits");
+
                 field = new ScaleField(width, height, depth, data, arg.rgba);
 
                 controlView.updateVolumeData(field);

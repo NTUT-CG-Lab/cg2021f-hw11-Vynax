@@ -1,5 +1,6 @@
 <!DOCTYPE HTML>
 <html>
+
 <head>
     <meta charset='utf-8'>
     <meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
@@ -11,7 +12,7 @@
         .frostedGlass {
             border-radius: 20px;
             overflow: hidden;
-            background-color: rgba(0,0,0,0.8);
+            background-color: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(5px)
         }
 
@@ -73,7 +74,7 @@
 
         .settingForm {
             display: flex;
-            max-width:100%;
+            max-width: 100%;
             flex-wrap: wrap;
             padding-top: 10px;
             padding-bottom: 10px;
@@ -101,8 +102,8 @@
             -moz-transition: max-height 0.8s ease-in-out;
         }
 
-        .noDisplay{
-            display:none
+        .noDisplay {
+            display: none
         }
 
         .radioSpace {
@@ -117,9 +118,9 @@
             flex: 1 1 0;
             text-align: center
         }
-
     </style>
 </head>
+
 <body style="padding:0px;margin:0px;width:100vw;height:100vh">
     <div id="info" style="position:absolute;top:0px; left:0px"></div>
     <div id="controlPanel" class="controlPanel frostedGlass" data-collapsed="false">
@@ -137,8 +138,8 @@
                 <label class="btnLabel noDisplay" name="settingForm">save .tf</label>
                 <label class="btnLabel noDisplay" name="settingForm">save .sbdat</label>
             </div>
-            <div class=" noDisplay" >
-                <label><input type="radio"name="rtype" value="mips" checked>MIPS</label>
+            <div class=" noDisplay">
+                <label><input type="radio" name="rtype" value="mips" checked>MIPS</label>
                 <label><input type="radio" name="rtype" value="iso">ISO</label>
             </div>
             <div id="palette"></div>
@@ -162,9 +163,9 @@
             //第3個參數為 完成狀況，有完成 true/未完成 false
             //有幾個項目就呼叫幾個 addChild
             //addChild 要比 renderModal 先呼叫
-            so.addChild("讀取文件並顯示資訊", 4, true);
-            so.addChild("使用直接法渲染影像", 2, true);
-            so.addChild("使用transfer function渲染影像", 2, true);
+            so.addChild("讀取檔案並顯示資訊", 4, true);
+            so.addChild("使用直接法繪製影像", 2, true);
+            so.addChild("使用transfer function繪製影像", 2, true);
             so.addChild("調色盤變更紋理", 2, false);
 
             //產生自評表，參數如下所示
@@ -325,14 +326,27 @@
             let elements = document.getElementsByName('settingForm')
 
             // 執行Sizebased transfer function
-            elements[3].addEventListener('click', (evt) => {})
+            elements[3].addEventListener('click', (evt) => {
+                field.process(null, () => {
+                    modelView.renderVolume(field, getColormap(), arg);
+                })
+            })
 
-            // 預設以ISO渲染
+            // 預設以ISO繪製
             arg.renderType = 1
 
-            // RAW文件讀取
+            // 讀取RAW檔案
             loadLocalRawFile('./raw/CTchest_64_64_64_uint8.raw', (result) => {
+                let width = 64;
+                let height = 64;
+                let depth = 64;
+                let bit = 8;
 
+                let data = new Uint8ClampedArray(result);
+
+                field = new ScaleField(width, height, depth, data, arg.rgba);
+
+                controlView.updateVolumeData(field);
             })
 
         }
@@ -342,11 +356,17 @@
             controlView = new ControlView(document.getElementById('palette'), arg)
 
             //當調色盤的參數變更時，觸發事件
-            controlView.addEventListener('change', () => {})
+            controlView.addEventListener('change', () => {
+                if (field == null) {
+                    return;
+                }
+                modelView.renderVolume(field, getColormap(), arg);
+            })
 
             init()
         }
     </script>
 
 </body>
+
 </html>
